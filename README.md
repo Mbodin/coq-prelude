@@ -40,3 +40,11 @@ One can also generate `coq-prelude` pretty-printed source tree thanks to `make`:
 ```bash
 make html
 ```
+
+A `package.json` file has been defined, enabling the use of [`esy`](http://esy.sh).
+Once `esy` is installed, the following command will fetch and compile Coq and compile the project:
+
+```bash
+esy
+```
+

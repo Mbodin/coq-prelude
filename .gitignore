@@ -16,3 +16,12 @@ html/*
 # Dune
 _build
 prelude.install
+
+# Esy
+_esy
+
+# Miscellaneous
+\#*\#
+*~
+*.swp
+
