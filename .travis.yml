@@ -1,45 +1,33 @@
+
+language: node_js
+
+node_js:
+  - 8
+
+os:
+  - linux
 dist: trusty
-sudo: required
-language: c
+
 cache:
-  apt: true
   directories:
-  - $HOME/.opam
-  - $HOME/bin
-
-addons:
-  apt:
-    sources:
-      - avsm
-
-env:
-  global:
-    - NJOBS=2
-    - COMPILER="4.08.0"
-    - NATIVE_COMP="yes"
-    - COQ_VER="8.11.0"
-    - DUNE_VER="2.4.0"
+    - ${HOME}/.esy
 
 install:
-  - curl -sL https://raw.githubusercontent.com/ocaml/opam/master/shell/install.sh > install.sh
-  - export PATH=$HOME/bin:$PATH
-  - which opam || (rm -rf $HOME/.opam; echo $HOME/bin | sudo sh install.sh --no-backup; opam init --disable-sandboxing -j ${NJOBS} --compiler=${COMPILER} -n -y)
-  - opam --version
-  - opam update
-  - eval $(opam config env)
-  - opam config list
-  - opam install -j ${NJOBS} -y dune.${DUNE_VER} coq.${COQ_VER}
-  - opam list
+  - npm install --global esy@0.6.2
+  - esy install
 
 script:
+  - esy build
   - git clone https://git.sr.ht/~lthms/coqbook.css ${HOME}/coqbook.css
-  - make html
+  - esy html
   - cp ${HOME}/coqbook.css/coqdoc.css html
 
 deploy:
   provider: pages
-  skip-cleanup: true
+  local_dir: html
+  skip_cleanup: true
   github-token: $GITHUB_TOKEN
+  target_branch: gh-pages
   on:
     branch: master
-  local-dir: html
+

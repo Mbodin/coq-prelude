@@ -11,8 +11,11 @@
     },
     "build": "make"
   },
+	"scripts": {
+		"html": "make html"
+	},
   "dependencies": {
     "@opam/coq": "8.10.1",
-    "@opam/dune": "^1.11"
+    "@opam/dune": "^2.4"
   }
 }

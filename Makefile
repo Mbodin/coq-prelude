@@ -9,3 +9,4 @@ install: build
 html: build
 	./configure.sh
 	make -f Makefile.coq html
+

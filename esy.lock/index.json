@@ -1,5 +1,5 @@
 {
-  "checksum": "018a5925d0ceb11ec4e9cebb43dfa993",
+  "checksum": "ccf5db157ffe12753cbbeac5bdf58887",
   "root": "coq-prelude@link-dev:./package.json",
   "node": {
     "ocaml@4.9.0@d41d8cd9": {
@@ -27,7 +27,7 @@
       },
       "overrides": [],
       "dependencies": [
-        "@opam/dune@opam:2.1.3@8a848ab8", "@opam/coq@opam:8.10.1@cabcd98d"
+        "@opam/dune@opam:2.5.1@a0c1e658", "@opam/coq@opam:8.10.1@cabcd98d"
       ],
       "devDependencies": []
     },
@@ -88,20 +88,20 @@
       ],
       "devDependencies": [ "ocaml@4.9.0@d41d8cd9" ]
     },
-    "@opam/dune@opam:2.1.3@8a848ab8": {
-      "id": "@opam/dune@opam:2.1.3@8a848ab8",
+    "@opam/dune@opam:2.5.1@a0c1e658": {
+      "id": "@opam/dune@opam:2.5.1@a0c1e658",
       "name": "@opam/dune",
-      "version": "opam:2.1.3",
+      "version": "opam:2.5.1",
       "source": {
         "type": "install",
         "source": [
-          "archive:https://opam.ocaml.org/cache/sha256/1e/1e8e3b55a9fae02c4b8137e2134a6cc163df5cddcd1d52cdacf2343ac53baeb3#sha256:1e8e3b55a9fae02c4b8137e2134a6cc163df5cddcd1d52cdacf2343ac53baeb3",
-          "archive:https://github.com/ocaml/dune/releases/download/2.1.3/dune-2.1.3.tbz#sha256:1e8e3b55a9fae02c4b8137e2134a6cc163df5cddcd1d52cdacf2343ac53baeb3"
+          "archive:https://opam.ocaml.org/cache/sha256/8f/8f77d3a87f208e0d7cccaa1c48c4bb1bb87d62d07c3f25e9b8ba298e028ce52b#sha256:8f77d3a87f208e0d7cccaa1c48c4bb1bb87d62d07c3f25e9b8ba298e028ce52b",
+          "archive:https://github.com/ocaml/dune/releases/download/2.5.1/dune-2.5.1.tbz#sha256:8f77d3a87f208e0d7cccaa1c48c4bb1bb87d62d07c3f25e9b8ba298e028ce52b"
         ],
         "opam": {
           "name": "dune",
-          "version": "2.1.3",
-          "path": "esy.lock/opam/dune.2.1.3"
+          "version": "2.5.1",
+          "path": "esy.lock/opam/dune.2.5.1"
         }
       },
       "overrides": [],
