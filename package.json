@@ -1,21 +1,23 @@
 {
-  "name": "coq-prelude",
-  "version": "1.0",
-  "description": "A convenient addition to the Coq standard library in order to ease software development (as opposed to theorem proving).",
-  "license": "GPLv3",
-  "esy": {
-    "buildsInSource": "_build",
-    "buildEnv": {
-      "COQBIN": "#{@opam/coq.bin}/",
-      "COQLIB": "#{@opam/coq.lib}/coq/"
-    },
-    "build": "make"
-  },
-	"scripts": {
-		"html": "make html"
+	"name": "coq-prelude",
+	"version": "1.0",
+	"description": "A convenient addition to the Coq standard library in order to ease software development (as opposed to theorem proving).",
+	"license": "GPLv3",
+	"esy": {
+		"buildsInSource": "_build",
+		"buildEnv": {
+			"COQBIN": "#{@opam/coq.bin}/",
+			"COQLIB": "#{@opam/coq.lib}/coq/"
+		},
+		"build": "make",
+		"install": "dune install --prefix=#{self.install}"
 	},
-  "dependencies": {
-    "@opam/coq": "8.10.1",
-    "@opam/dune": "^2.4"
-  }
+	"scripts": {
+		"html": "make html",
+		"clean": "make clean"
+	},
+	"dependencies": {
+		"@opam/coq": "8.10.1",
+		"@opam/dune": "^2.4"
+	}
 }

@@ -1,7 +1,7 @@
-.PHONY: build html
+.PHONY: build html install clean
 
 build:
-	dune build @install
+	export HOME=`pwd`; dune build @install
 
 install: build
 	dune install
@@ -9,4 +9,11 @@ install: build
 html: build
 	./configure.sh
 	make -f Makefile.coq html
+
+clean:
+	rm -rf _build || true
+	rm -rf html || true
+	rm theories/*.vo theories/*/*.vo || true
+	rm theories/*.glob theories/*/*.glob || true
+	rm theories/*.aux theories/*/*.aux || true
 

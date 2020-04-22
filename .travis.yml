@@ -17,7 +17,6 @@ install:
   - esy install
 
 script:
-  - esy build
   - git clone https://git.sr.ht/~lthms/coqbook.css ${HOME}/coqbook.css
   - esy html
   - cp ${HOME}/coqbook.css/coqdoc.css html
