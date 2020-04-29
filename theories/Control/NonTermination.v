@@ -1,5 +1,5 @@
 (* coq-prelude
- * Copyright (C) 2020 Martin Bodin
+ * Copyright (C) 2020 Martin Bodin (also, indirectly Adam Chlipala)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
