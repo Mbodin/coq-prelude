@@ -18,70 +18,14 @@
 From Coq Require Import Setoid.
 From Equations Require Import Equations Signature.
 
-From Prelude Require Import Classes Control Equality.
+From Prelude Require Import Control.
 
 Local Open Scope prelude_scope.
-Local Open Scope list_scope.
 Local Open Scope monad_scope.
-
-Add Parametric Morphism
-    (a:  Type)
-   `{Equality a}
-  : cons
-    with signature (@equal a _)
-                     ==> (@equal (list a) _)
-                     ==> (@equal (list a) _)
-      as cons_morphism.
-Proof.
-  intros x y Heqx r q Eqrst.
-  constructor.
-  exact Heqx.
-  cbn in Eqrst.
-  exact Eqrst.
-Qed.
-
-(* WORK IN PROGRESS *)
 
 Equations list_map {a b:  Type} (f:  a -> b) (l:  list a) : list b :=
 list_map _ nil := nil;
 list_map f (cons x r) := (f x) :: (list_map f r).
-
-Add Parametric Morphism
-    (a b:  Type)
-   `{Equality a}
-   `{Equality b}
-  : list_map
-    with signature (@equal (a -> b) _)
-                     ==> eq
-                     ==> (@equal (list b) _)
-      as list_map_morphism.
-Proof.
-  intros f g Heq s.
-  induction s.
-  + repeat rewrite list_map_equation_1. reflexivity.
-  + repeat rewrite list_map_equation_2.
-    constructor.
-    ++ apply Heq.
-    ++ exact IHs.
-Qed.
-
-Lemma list_map_nil
-      {a b:  Type}
-      (f:    a -> b)
-  : list_map f nil = nil.
-Proof.
- reflexivity.
-Qed.
-
-Local Lemma fold_list_equal : forall A (E : Equality A) (l1 l2 : list A),
-  l1 == l2 ->
-  list_equal l1 l2.
-Proof. now eauto. Defined.
-
-Local Lemma unfold_list_equal : forall A (E : Equality A) (l1 l2 : list A),
-  list_equal l1 l2 ->
-  l1 == l2.
-Proof. now eauto. Defined.
 
 #[program]
 Instance list_Functor
@@ -90,22 +34,10 @@ Instance list_Functor
   }.
 
 Next Obligation.
-  apply fold_list_equal.
-  induction x.
-  + rewrite list_map_nil. reflexivity.
-  + rewrite list_map_equation_2.
-    rewrite IHx.
-    reflexivity.
-Defined.
+Admitted.
 
 Next Obligation.
-  apply fold_list_equal.
-  induction x.
-  + reflexivity.
-  + rewrite list_map_equation_2.
-    rewrite IHx.
-    reflexivity.
-Defined.
+Admitted.
 
 Definition list_pure
            {a:  Type}
@@ -117,102 +49,10 @@ Equations concat {a:  Type} (l l':  list a) : list a :=
 concat nil l' := l';
 concat (cons x r) l' := x :: concat r l'.
 
-Add Parametric Morphism
-    (a:  Type)
-   `{Equality a}
-  : concat
-    with signature (@equal (list a) _)
-                     ==> (@equal (list a) _)
-                     ==> (@equal (list a) _)
-      as concat_list_morphism.
-Proof.
-  induction x.
-  + intros y Heq r s Heqr.
-    inversion Heq; subst.
-    exact Heqr.
-  + intros y Heq r s Heqr.
-    inversion Heq; subst.
-    Search concat.
-    repeat rewrite concat_equation_2.
-    constructor.
-    ++ assumption.
-    ++ apply IHx; assumption.
-Qed.
-
-Lemma concat_nil
-      {a:  Type}
-      (l:  list a)
-  : concat l nil = l.
-Proof.
-  induction l.
-  + reflexivity.
-  + rewrite concat_equation_2.
-    rewrite IHl.
-    reflexivity.
-Qed.
 
 Equations list_app {a b:  Type} (f:  list (a -> b)) (l:  list a) : list b :=
 list_app (cons f r) l := concat (f <$> l) (list_app r l);
 list_app nil _ := nil.
-
-Equations list_app' {a b:  Type} (x:  a) (f:  list (a -> b)) (l:  list a) : list b :=
-list_app' x (cons f r) l := concat (list_pure (f x)) (concat (f <$> l) (list_app' x r l));
-list_app' _ nil _ := nil.
-
-Lemma list_app_list_app'
-      {a b:  Type}
-      (lf:   list (a -> b))
-      (x:    a)
-      (rst:  list a)
-  : list_app lf (x :: rst) = list_app' x lf rst.
-Proof.
-  induction lf.
-  + rewrite list_app_equation_1.
-    rewrite list_app'_equation_1.
-    reflexivity.
-  + rewrite list_app_equation_2.
-    rewrite list_app'_equation_2.
-    rewrite list_map_equation_2.
-    unfold list_pure.
-    repeat rewrite concat_equation_2.
-    rewrite concat_equation_1.
-    now rewrite IHlf.
-Qed.
-
-Lemma list_app_nil
-      {a b:  Type}
-      (f:    list (a -> b))
-  : list_app f nil = nil.
-Proof.
-  induction f.
-  + reflexivity.
-  + rewrite list_app_equation_2.
-    rewrite concat_equation_1.
-    exact IHf.
-Qed.
-
-Add Parametric Morphism
-    (a b:  Type)
-   `{Equality a}
-   `{Equality b}
-  : list_app
-    with signature (@equal (list (a -> b)) _)
-                     ==> eq
-                     ==> (@equal (list b) _)
-      as list_app_morphism.
-Proof.
-  intros x y Heq.
-  induction Heq.
-  + intros s.
-    repeat rewrite list_app_equation_2.
-    apply unfold_list_equal in Heq.
-    rewrite equ.
-    rewrite IHHeq.
-    reflexivity.
-  + intros s.
-    rewrite list_app_equation_1.
-    reflexivity.
-Qed.
 
 Conjecture list_conjecture_applicative_1
   : forall (a b c:  Type) `{Equality c}
@@ -230,66 +70,17 @@ Instance list_Applicative
   }.
 
 Next Obligation.
-  apply fold_list_equal.
-  induction v.
-  + reflexivity.
-  + unfold list_pure.
-    rewrite list_app_equation_2.
-    rewrite list_app_equation_1.
-    rewrite concat_nil.
-    rewrite functor_identity.
-    reflexivity.
-Defined.
+Admitted.
 
 Next Obligation.
   apply list_conjecture_applicative_1.
 Defined.
 
 Next Obligation.
-  apply fold_list_equal.
-  unfold list_pure.
-  rewrite list_app_equation_2.
-  rewrite list_app_equation_1.
-  rewrite concat_nil.
-  rewrite list_map_equation_2.
-  rewrite list_map_equation_1.
-  reflexivity.
-Defined.
+Admitted.
 
 Next Obligation.
-  apply fold_list_equal.
-  induction u.
-  + rewrite list_app_equation_1.
-    rewrite list_app_nil.
-    reflexivity.
-  + rewrite list_app_equation_2.
-    rewrite IHu.
-    unfold list_pure in *.
-    rewrite list_map_equation_2.
-    rewrite concat_equation_2.
-    rewrite concat_equation_1.
-    rewrite list_app_equation_2.
-    rewrite list_app_equation_1.
-    rewrite concat_nil.
-    rewrite list_app_equation_2.
-    rewrite list_app_equation_1.
-    rewrite concat_nil.
-    rewrite list_map_equation_2.
-    reflexivity.
-Defined.
+Admitted.
 
 Next Obligation.
-  apply fold_list_equal.
-  unfold list_pure.
-  rewrite list_app_equation_2.
-  rewrite list_app_equation_1.
-  rewrite concat_nil.
-  reflexivity.
-Defined.
-
-#[program]
-Instance identity_ReversibleMonad : ReversibleMonad list.
-
-Next Obligation.
-  now exists m.
-Defined.
+Admitted.
