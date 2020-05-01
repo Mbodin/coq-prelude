@@ -1,5 +1,5 @@
 (* coq-prelude
- * Copyright (C) 2018 ANSSI
+ * Copyright (C) 2018 ANSSI, 2020 Martin Bodin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,10 +18,11 @@
 From Coq Require Import Setoid.
 From Equations Require Import Equations Signature.
 
-From Prelude Require Import Control Equality.
+From Prelude Require Import Classes Control Equality.
 
 Local Open Scope prelude_scope.
 Local Open Scope list_scope.
+Local Open Scope monad_scope.
 
 Add Parametric Morphism
     (a:  Type)
@@ -56,10 +57,8 @@ Add Parametric Morphism
       as list_map_morphism.
 Proof.
   intros f g Heq s.
-  cbn.
   induction s.
-  + repeat rewrite list_map_equation_1.
-    reflexivity.
+  + repeat rewrite list_map_equation_1. reflexivity.
   + repeat rewrite list_map_equation_2.
     constructor.
     ++ apply Heq.
@@ -74,21 +73,38 @@ Proof.
  reflexivity.
 Qed.
 
+Local Lemma fold_list_equal : forall A (E : Equality A) (l1 l2 : list A),
+  l1 == l2 ->
+  list_equal l1 l2.
+Proof. now eauto. Defined.
+
+Local Lemma unfold_list_equal : forall A (E : Equality A) (l1 l2 : list A),
+  list_equal l1 l2 ->
+  l1 == l2.
+Proof. now eauto. Defined.
+
+#[program]
 Instance list_Functor
   : Functor list :=
   { map := @list_map
   }.
-+ intros a Ha x.
+
+Next Obligation.
+  apply fold_list_equal.
   induction x.
-  ++ reflexivity.
-  ++ rewrite list_map_equation_2.
-     rewrite IHx.
-     reflexivity.
-+ induction x.
-  ++ reflexivity.
-  ++ rewrite list_map_equation_2.
-     rewrite IHx.
-     reflexivity.
+  + rewrite list_map_nil. reflexivity.
+  + rewrite list_map_equation_2.
+    rewrite IHx.
+    reflexivity.
+Defined.
+
+Next Obligation.
+  apply fold_list_equal.
+  induction x.
+  + reflexivity.
+  + rewrite list_map_equation_2.
+    rewrite IHx.
+    reflexivity.
 Defined.
 
 Definition list_pure
@@ -119,10 +135,8 @@ Proof.
     Search concat.
     repeat rewrite concat_equation_2.
     constructor.
-    ++ exact Heq0.
-    ++ apply IHx.
-       exact Heq'.
-       exact Heqr.
+    ++ assumption.
+    ++ apply IHx; assumption.
 Qed.
 
 Lemma concat_nil
@@ -158,13 +172,11 @@ Proof.
     reflexivity.
   + rewrite list_app_equation_2.
     rewrite list_app'_equation_2.
-    rewrite concat_equation_2.
-    rewrite concat_equation_1.
-    rewrite IHlf.
-    cbn.
     rewrite list_map_equation_2.
-    rewrite concat_equation_2.
-    reflexivity.
+    unfold list_pure.
+    repeat rewrite concat_equation_2.
+    rewrite concat_equation_1.
+    now rewrite IHlf.
 Qed.
 
 Lemma list_app_nil
@@ -193,7 +205,8 @@ Proof.
   induction Heq.
   + intros s.
     repeat rewrite list_app_equation_2.
-    rewrite Heq.
+    apply unfold_list_equal in Heq.
+    rewrite equ.
     rewrite IHHeq.
     reflexivity.
   + intros s.
@@ -209,53 +222,74 @@ Conjecture list_conjecture_applicative_1
     list_app (list_app (list_app (list_pure compose) u) v) w
     == list_app u (list_app v w).
 
+#[program]
 Instance list_Applicative
   : Applicative (list) :=
   { pure   := @list_pure
   ; apply  := @list_app
   }.
-Proof.
-  + intros a Heq v.
-    induction v.
-    ++ reflexivity.
-    ++ cbn in *.
-       rewrite list_app_equation_2.
-       rewrite list_app_equation_1.
-       rewrite concat_nil.
-       rewrite functor_identity.
-       reflexivity.
-  + apply list_conjecture_applicative_1.
-  + intros a b Heq v x.
+
+Next Obligation.
+  apply fold_list_equal.
+  induction v.
+  + reflexivity.
+  + unfold list_pure.
     rewrite list_app_equation_2.
     rewrite list_app_equation_1.
     rewrite concat_nil.
-    cbn.
+    rewrite functor_identity.
+    reflexivity.
+Defined.
+
+Next Obligation.
+  apply list_conjecture_applicative_1.
+Defined.
+
+Next Obligation.
+  apply fold_list_equal.
+  unfold list_pure.
+  rewrite list_app_equation_2.
+  rewrite list_app_equation_1.
+  rewrite concat_nil.
+  rewrite list_map_equation_2.
+  rewrite list_map_equation_1.
+  reflexivity.
+Defined.
+
+Next Obligation.
+  apply fold_list_equal.
+  induction u.
+  + rewrite list_app_equation_1.
+    rewrite list_app_nil.
+    reflexivity.
+  + rewrite list_app_equation_2.
+    rewrite IHu.
+    unfold list_pure in *.
     rewrite list_map_equation_2.
-    rewrite list_map_equation_1.
-    reflexivity.
-  + intros a b H u y.
-    induction u.
-    ++ rewrite list_app_equation_1.
-       rewrite list_app_nil.
-       reflexivity.
-    ++ rewrite list_app_equation_2.
-       rewrite IHu.
-       cbn.
-       rewrite list_map_equation_2.
-       rewrite concat_equation_2.
-       rewrite concat_equation_1.
-       rewrite list_app_equation_2.
-       rewrite list_app_equation_1.
-       rewrite concat_nil.
-       rewrite list_app_equation_2.
-       rewrite list_app_equation_1.
-       rewrite concat_nil.
-       cbn.
-       rewrite list_map_equation_2.
-       reflexivity.
-  + intros a b H g x.
+    rewrite concat_equation_2.
+    rewrite concat_equation_1.
     rewrite list_app_equation_2.
     rewrite list_app_equation_1.
     rewrite concat_nil.
+    rewrite list_app_equation_2.
+    rewrite list_app_equation_1.
+    rewrite concat_nil.
+    rewrite list_map_equation_2.
     reflexivity.
+Defined.
+
+Next Obligation.
+  apply fold_list_equal.
+  unfold list_pure.
+  rewrite list_app_equation_2.
+  rewrite list_app_equation_1.
+  rewrite concat_nil.
+  reflexivity.
+Defined.
+
+#[program]
+Instance identity_ReversibleMonad : ReversibleMonad list.
+
+Next Obligation.
+  now exists m.
 Defined.

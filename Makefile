@@ -1,6 +1,7 @@
 .PHONY: build html install clean
 
 build:
+	export HOME=`pwd`; dune build @all
 	export HOME=`pwd`; dune build @install
 
 install: build

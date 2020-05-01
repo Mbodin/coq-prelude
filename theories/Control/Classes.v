@@ -1,5 +1,5 @@
 (* coq-prelude
- * Copyright (C) 2018 ANSSI
+ * Copyright (C) 2018 ANSSI, 2020 Martin Bodin
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,3 +69,45 @@ Instance monadtransform_reader
   : MonadReader r (t m) :=
   { ask := lift ask
   }.
+
+
+(** * Monad Reasonning *)
+
+(** We introduce this structure to be able to reason about monads,
+  and in particular to be able to relate a monadic interpreter with
+  a usual small-step semantics.
+  It is based on a special high-order predicate that transpose a
+  predicate about inside the monad. **)
+Class ReasonMonad m (M : Monad m) := {
+    reason_predicate : forall A : Type, (A -> Prop) -> m A -> Prop ;
+    reason_predicate_pure : forall A (p : A -> Prop) (a : A), p a -> reason_predicate _ p (pure a) ;
+    reason_predicate_bind : forall A B (p : A -> Prop) (q : B -> Prop) (f : A -> m B) (m : m A),
+      (forall a : A, p a -> reason_predicate _ q (f a)) ->
+      reason_predicate _ p m ->
+      reason_predicate _ q (m >>= f)%monad
+  }.
+Arguments ReasonMonad m {M}.
+
+(** In particular, some monads can be reversed. **)
+Class ReversibleMonad m (M : Monad m) := {
+    reversible_pure : forall A (a1 a2 : A), pure a1 = pure a2 -> a1 = a2 ;
+    reversible_bind : forall A B (f : A -> m B) (m : m A) (b : B),
+      (m >>= f)%monad = pure b ->
+      exists a, m = pure a /\ f a = pure b
+  }.
+Arguments ReversibleMonad m {M}.
+
+(** Any reversible monad comes with a natural way to reason on it. **)
+Instance ReversibleMonad_ReasonMonad : forall m (M : Monad m),
+  ReversibleMonad m ->
+  ReasonMonad m.
+Proof.
+  intros m M RM.
+  refine {|
+      reason_predicate := fun A p m => forall r, m = pure r -> p r
+    |}.
+  - intros A p a ? r E. apply reversible_pure in E. now subst.
+  - intros A B p q f m' Rf Rp r E. apply reversible_bind in E.
+    destruct E as [a [E1 E2]]. eapply Rf; [| apply E2 ]. now apply Rp.
+Defined.
+

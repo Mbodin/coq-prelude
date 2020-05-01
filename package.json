@@ -18,6 +18,29 @@
 	},
 	"dependencies": {
 		"@opam/coq": "8.10.1",
-		"@opam/dune": "^2.4"
+		"@opam/dune": "^2.4",
+		"coq-equations": "*"
+	},
+	"resolutions": {
+		"coq-equations": {
+			"source": "github:mattam82/Coq-Equations#cede6e3526991667c11f86ab23dc6d85efc9dea1",
+			"override": {
+        "dependencies": {
+          "@opam/coq": "~8.10"
+        },
+        "buildsInSource": true,
+        "buildEnv": {
+          "HOME": "#{self.target_dir}",
+          "COQBIN": "#{@opam/coq.bin}/",
+          "COQLIB": "#{@opam/coq.lib}/coq/",
+          "COQPATH": "#{@opam/coq.lib}/coq/user-contrib/"
+        },
+        "build": [
+          ["./configure.sh"],
+          ["make", "-j2"],
+          ["make", "install"]
+        ]
+      }
+    }
 	}
 }

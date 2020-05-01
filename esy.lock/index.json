@@ -1,5 +1,5 @@
 {
-  "checksum": "ccf5db157ffe12753cbbeac5bdf58887",
+  "checksum": "e4ed971901165b0bb329d59e3f007f59",
   "root": "coq-prelude@link-dev:./package.json",
   "node": {
     "ocaml@4.9.0@d41d8cd9": {
@@ -27,8 +27,41 @@
       },
       "overrides": [],
       "dependencies": [
+        "coq-equations@github:mattam82/Coq-Equations#cede6e3526991667c11f86ab23dc6d85efc9dea1@8e62c96c",
         "@opam/dune@opam:2.5.1@a0c1e658", "@opam/coq@opam:8.10.1@cabcd98d"
       ],
+      "devDependencies": []
+    },
+    "coq-equations@github:mattam82/Coq-Equations#cede6e3526991667c11f86ab23dc6d85efc9dea1@8e62c96c": {
+      "id":
+        "coq-equations@github:mattam82/Coq-Equations#cede6e3526991667c11f86ab23dc6d85efc9dea1@8e62c96c",
+      "name": "coq-equations",
+      "version":
+        "github:mattam82/Coq-Equations#cede6e3526991667c11f86ab23dc6d85efc9dea1",
+      "source": {
+        "type": "install",
+        "source": [
+          "github:mattam82/Coq-Equations#cede6e3526991667c11f86ab23dc6d85efc9dea1"
+        ]
+      },
+      "overrides": [
+        {
+          "dependencies": { "@opam/coq": "~8.10" },
+          "buildsInSource": true,
+          "buildEnv": {
+            "HOME": "#{self.target_dir}",
+            "COQBIN": "#{@opam/coq.bin}/",
+            "COQLIB": "#{@opam/coq.lib}/coq/",
+            "COQPATH": "#{@opam/coq.lib}/coq/user-contrib/"
+          },
+          "build": [
+            [ "./configure.sh" ],
+            [ "make", "-j2" ],
+            [ "make", "install" ]
+          ]
+        }
+      ],
+      "dependencies": [ "@opam/coq@opam:8.10.1@cabcd98d" ],
       "devDependencies": []
     },
     "@opam/ocamlfind@opam:1.8.1@ff07b0f9": {
